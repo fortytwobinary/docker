@@ -1,0 +1,65 @@
+/* Create fresh new recipes database */
+DROP DATABASE IF EXISTS `monitoring`;
+
+CREATE DATABASE `recipes`;
+
+USE `recipes`;
+
+ /* 
+  * API
+  */
+CREATE TABLE `api` (
+  `id`                int(6) unsigned     NOT NULL AUTO_INCREMENT,  -- (243)
+  `artifact_id`       varchar(40)         NOT NULL,                 -- cdx-some-api
+  `system_name`       varchar(40)         NOT NULL,
+  `family_name`       varchar(40)         NOT NULL,
+  `api_type`          varchar(10)         NOT NULL,
+  `api_path`          varchar(80)         NOT NULL,                 -- /sapi/v1/resource/health
+  PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*
+ * API_RELEASE
+ */
+CREATE TABLE `api_release` (
+  `id`                  int(6) unsigned     NOT NULL AUTO_INCREMENT,  -- (23)
+  `api_id`              int(6) unsigned     NOT NULL,                 -- (243)
+  `autodiscovery_id`    int(6) unsigned     NOT NULL,                 -- 123800
+  `build_version`       varchar(40)         NOT NULL,
+  `is_current_version`  boolean             NOT NULL DEFAULT 0,
+  `api_version`         varchar(3)          NOT NULL,
+  `build_date`          datetime            DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`api_id`)
+        REFERENCES api(id)
+--        ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*
+ * API_INSTANCE
+ */
+CREATE TABLE `api_instance` (
+  `id`                int(6) unsigned     NOT NULL AUTO_INCREMENT,  -- (5)
+  `api_seq`           int(6) unsigned     NOT NULL,
+  `api_release_id`    int(6) unsigned     NOT NULL,             -- pk api_release (23)
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`api_release_id`)
+        REFERENCES api_release(id)
+ --       ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+/*
+ * EVENT
+ */
+CREATE TABLE `event` (
+  `id`              int(6) unsigned     NOT NULL AUTO_INCREMENT, -- (76)
+  `api_instance_id` int(6) unsigned     NOT NULL,                 -- pk api_instance (5)
+  `response`        int(6) unsigned     NOT NULL,
+  `timestamp`       timestamp           NOT NULL,
+  PRIMARY KEY (`id`),
+    FOREIGN KEY (`api_instance_id`)
+        REFERENCES api_instance(id)
+        ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
